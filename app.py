@@ -161,10 +161,12 @@ def split_documents(documents: list[Document]):
 
 class ChatBot:
 
-    def __init__(self, model: ChatGoogleGenerativeAI, embeddings: GoogleGenerativeAIEmbeddings, system_prompt: str, document_path: str, chroma_path: str, num_messages=5) -> None:
+    def __init__(self, model: ChatGoogleGenerativeAI, embeddings: GoogleGenerativeAIEmbeddings, system_prompt: str, document_path: str, chroma_path: str, num_messages=5, thread_id: str = "1") -> None:
         self.system_prompt = system_prompt
         self.num_messages = num_messages
         self.model = model
+        self.config = {"configurable": {"thread_id": thread_id}}
+        self.chroma_path = chroma_path
         
         self.message_history = []
         self.db = Chroma(
@@ -173,7 +175,7 @@ class ChatBot:
         )
         documents = load_documents(document_path)
         chunks = split_documents(documents)
-        self.add_to_chroma(chunks, chroma_path=chroma_path)
+        self.add_to_chroma(chunks)
         self.app = self.get_app()
         
         
@@ -186,14 +188,11 @@ class ChatBot:
         
 
 
-    def add_to_chroma(self, chunks: list[Document], chroma_path):
+    def add_to_chroma(self, chunks: list[Document]):
         chunks_with_ids = calculate_chunk_ids(chunks)
 
-        if os.path.exists(chroma_path):
-            existing_items = self.db.get(include=[])
-            existing_ids = set(existing_items.get("ids", []))
-        else:
-            existing_ids = set()
+        existing_items = self.db.get(include=[])
+        existing_ids = set(existing_items.get("ids", [])) if existing_items else set()
 
         new_chunks = [chunk for chunk in chunks_with_ids if chunk.metadata["id"] not in existing_ids]
         if new_chunks:
@@ -222,7 +221,8 @@ class ChatBot:
             self.message_history.append(message_formatted)
             message_list = []
             if len(messages) > self.num_messages + 1:
-                message_list = [RemoveMessage(id=m.id) for m in messages[1:-self.num_messages]]
+                remove_count = len(messages) - self.num_messages - 1
+                message_list = [RemoveMessage(id=m.id) for m in messages[1:1+remove_count]]
             message_list.append(response)
             return {"messages": message_list}
         
@@ -250,18 +250,14 @@ class ChatBot:
     
     def stream(self, message: str):
         response_text = ""
-        if len(self.app.get_state(config=config).values) == 0:
+        state = self.app.get_state(self.config)
+        if not state.values or len(state.values.get("messages", [])) == 0:
             self.message_history.append({'role': 'user', 'content': message})
-            for event in self.app.stream({'messages': [('system', self.system_prompt), ('user', message)]}, config, stream_mode="values"):
-                response_text = event["messages"][-1].content
-                event["messages"][-1].pretty_print()
-        elif len(self.app.get_state(config=config).values['messages']) == 0:
-            self.message_history.append({'role': 'user', 'content': message})
-            for event in self.app.stream({'messages': [('system', self.system_prompt), ('user', message)]}, config, stream_mode="values"):
+            for event in self.app.stream({'messages': [('system', self.system_prompt), ('user', message)]}, self.config, stream_mode="values"):
                 response_text = event["messages"][-1].content
                 event["messages"][-1].pretty_print()
         else:
-            for event in self.app.stream(Command(resume=message), config, stream_mode="values"):
+            for event in self.app.stream(Command(resume=message), self.config, stream_mode="values"):
                 response_text = event["messages"][-1].content
                 event["messages"][-1].pretty_print()
         return response_text
@@ -512,11 +508,10 @@ if __name__ == "__main__":
 
     embeddings = initialize_gemini_embeddings(api_key=gemini_api_key)
 
-    config = {"configurable": {"thread_id": "1"}}
     system_prompt = '你是一名跑团游戏的DM，负责引导玩家在跑团游戏中探索故事和解决谜题...'
 
     chatbot = ChatBot(model=model, embeddings=embeddings, system_prompt=system_prompt,
-                      document_path=DOC_PATH, chroma_path=CHROMA_PATH)
+                      document_path=DOC_PATH, chroma_path=CHROMA_PATH, thread_id="1")
 
     @app.route('/gamestart', methods=['GET'])
     def gamestart():
