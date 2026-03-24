@@ -1,0 +1,542 @@
+#screen-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-size: cover;
+    -webkit-background-size: cover;
+    z-index: -1;
+
+    width: 100%;
+    height: 100%;
+    background: url(../images/bg.png) no-repeat center center fixed;
+}
+
+/* 聊天界面 css*/
+#chatbox-title {
+    position: relative;
+    top: 2.5%;
+    left: 4%;
+
+    width: 59%;
+    height: auto;
+    max-width: 1000px;
+}
+
+#chatbox-title-text {
+    text-align: left;
+
+    color: #FFF;
+    font-feature-settings: 'dlig' on;
+    font-family: "Krona One";
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.32px;
+}
+
+#line-chatbox-title {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translate(-100%, -50%);
+
+    width: 80%;
+    height: 12px;
+}
+
+#chat-interface {
+    position: absolute;
+    top: 16.7%;
+    left: 4%;
+
+    width: 59%;
+    height: 75%;
+    border-radius: 12px;
+    border: 2px solid var(--Style, #3ADFFF);
+    background: rgba(0, 0, 0, 0.30);
+}
+
+#dice-button {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    width: 50%;
+    height: 7%;
+    border-radius: 0px 0px 0px 12px;
+    border: 1px solid #828282;
+    background: #1B2727;
+}
+
+#dice-button-text {
+    color: #FFF;
+    text-align: center;
+    font-feature-settings: 'dlig' on;
+    font-family: "Krona One";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 12.194px;
+    /* 76.212% */
+    letter-spacing: -0.16px;
+}
+
+#voice-button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+
+    width: 50%;
+    height: 7%;
+    border-radius: 0px 0px 12px 0px;
+    border: 1px solid #828282;
+    background: #1B2727;
+}
+
+#voice-button-text {
+    color: #FFF;
+    text-align: center;
+    font-feature-settings: 'dlig' on;
+    font-family: "Krona One";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 12.194px;
+    /* 76.212% */
+    letter-spacing: -0.16px;
+}
+
+/* 人物卡界面css */
+#charactercard-title {
+    position: absolute;
+    top: 2.5%;
+    right: 4%;
+
+    margin: 0%;
+    padding: 0%;
+    width: 27%;
+    height: auto;
+}
+
+#charactercard-title-text {
+    text-align: center;
+
+    color: #FFF;
+    font-feature-settings: 'dlig' on;
+    font-family: "Krona One";
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.32px;
+}
+
+#charactercard-title-line1 {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(0, -50%);
+
+    width: 30%;
+    height: 12px;
+}
+
+#charactercard-title-line2 {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translate(-100%, -50%);
+
+    width: 30%;
+    height: 12px;
+}
+
+/* card的css */
+#charactercard-interface {
+    position: absolute;
+    top: 16.7%;
+    right: 4%;
+
+    width: 27%;
+    height: 75%;
+    border-radius: 12px;
+    border: 2px solid var(--Style, #3ADFFF);
+    background: rgba(0, 0, 0, 0.30);
+}
+
+#character-image-container {
+    position: relative;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 30%;
+    border-radius: 12px 12px 0 0;
+    background-color: #3ADFFF;
+}
+
+#character-image {
+    position: relative;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+    border-radius: 12px 12px 0 0;
+    object-fit: cover;
+    /* 确保图像适应容器大小 */
+}
+
+#basic-information {
+    position: relative;
+    left: 9%;
+
+    padding-top: 6%;
+    /* 相对于父元素高度的 8% */
+    box-sizing: border-box;
+    /* 确保 padding 不影响元素的总高度 */
+
+    width: 90%;
+    height: 20%;
+}
+
+#title-basic-information,
+#title-attribute,
+#title-skill {
+    color: #FFF;
+    font-feature-settings: 'dlig' on;
+    font-family: Inter;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 12.194px;
+    letter-spacing: -0.2px;
+}
+
+#gender,
+#age,
+#occupation,
+#address,
+#str,
+#int,
+#dex,
+#luk,
+#inspect,
+#psychology,
+#social,
+#run,
+#library-use,
+#credit {
+    color: #FFF;
+    font-feature-settings: 'dlig' on;
+    font-family: Inter;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 12.194px;
+    letter-spacing: -0.16px;
+}
+
+#gender {
+    position: absolute;
+    top: 50%;
+    /* margin: 11% 0 0 9%; */
+    left: 1%;
+}
+
+#age {
+    position: absolute;
+    top: 50%;
+    left: 45%;
+}
+
+#occupation {
+    position: absolute;
+    top: 70%;
+    left: 1%;
+}
+
+#address {
+    position: absolute;
+    top: 70%;
+    left: 45%;
+}
+
+
+/* 属性的css */
+#attribute {
+    position: relative;
+    left: 9%;
+
+    width: 90%;
+    height: 30%;
+}
+
+#str {
+    position: absolute;
+    top: 20%;
+    left: 1%;
+    /* margin: 11% 0 0 9%; */
+    width: 90%;
+}
+
+#dex {
+    position: absolute;
+    top: 40%;
+    left: 1%;
+    width: 90%;
+}
+
+#luk {
+    position: absolute;
+    top: 60%;
+    left: 1%;
+    width: 90%;
+}
+
+#int {
+    position: absolute;
+    top: 80%;
+    left: 1%;
+    width: 90%;
+}
+
+/* skill的css */
+#skill {
+    position: relative;
+    left: 9%;
+
+    width: 90%;
+    height: 20%;
+}
+
+#inspect {
+    position: absolute;
+    top: 30%;
+    left: 1%;
+}
+
+#psychology {
+    position: absolute;
+    top: 30%;
+    left: 45%;
+}
+
+#social {
+    position: absolute;
+    top: 50%;
+    left: 1%;
+}
+
+#run {
+    position: absolute;
+    top: 50%;
+    left: 45%;
+}
+
+#library-use {
+    position: absolute;
+    top: 70%;
+    left: 1%;
+}
+
+#credit {
+    position: absolute;
+    top: 70%;
+    left: 45%;
+}
+
+/* 数值条css */
+
+#str-bar-1,
+#str-bar-2,
+#dex-bar-1,
+#dex-bar-2,
+#luk-bar-1,
+#luk-bar-2,
+#int-bar-1,
+#int-bar-2,
+#luk-bar-3,
+#int-bar-3,
+#str-bar-3,
+#dex-bar-3 {
+    position: absolute;
+    top: 50%;
+    left: 35%;
+    transform: translate(0, -50%);
+}
+
+#str-bar-1,
+#dex-bar-1,
+#luk-bar-1,
+#int-bar-1 {
+    width: 60%;
+    height: 50%;
+    border-radius: 5.401px;
+    background: linear-gradient(90deg, #3ADFFF 0%, #FF8F51 99.94%);
+    mix-blend-mode: color-dodge;
+    filter: blur(2.9704642295837402px);
+}
+
+#str-bar-2,
+#dex-bar-2,
+#luk-bar-2,
+#int-bar-2 {
+    width: 60%;
+    height: 40%;
+    background: linear-gradient(90deg, #3ADFFF 0%, #FF8F51 100%);
+    filter: blur(1.3502110242843628px);
+}
+
+#str-bar-3,
+#dex-bar-3,
+#luk-bar-3,
+#int-bar-3 {
+    width: 60%;
+    height: 20%;
+    background: linear-gradient(270deg, rgba(255, 255, 255, 0.08) 0%, #FFF 50%, rgba(255, 255, 255, 0.08) 100%);
+}
+
+#luk-light-spot,
+#str-light-spot,
+#int-light-spot,
+#dex-light-spot {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: -100%;
+    transform: translate(-50%, -50%);
+
+    width: 55%;
+    height: 1000%;
+    flex-shrink: 0;
+    fill: radial-gradient(50% 50% at 50% 50%, #D9D9D9 0%, rgba(0, 0, 0, 0.00) 100%);
+    mix-blend-mode: color-dodge;
+}
+
+/* 以下这一大部分是ai与人聊天的内容的css，之后确定了会调整到前面去*/
+#chat-logs {
+    position: absolute;
+    top: 1%;
+    left: 0;
+
+    width: 100%;
+    height: 91%;
+    border-radius: 12px;
+    /* border: 2px solid var(--Style, #3ADFFF); */
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 以下四项是滚动条的样式 */
+#chat-logs::-webkit-scrollbar {
+    width: 12px; /* 滚动条的宽度 */
+}
+
+#chat-logs::-webkit-scrollbar-track {
+    background: #363535; /* 滚动条轨道的背景色 */
+    border-radius: 10px; /* 滚动条轨道的圆角 */
+}
+
+#chat-logs::-webkit-scrollbar-thumb {
+    background: #888; /* 滚动条的颜色 */
+    border-radius: 10px; /* 滚动条的圆角 */
+}
+
+#chat-logs::-webkit-scrollbar-thumb:hover {
+    background: #555; /* 滚动条在鼠标悬停时的颜色 */
+}
+
+.message-container {
+    display: flex;
+    margin-bottom: 10px;
+    padding: 10px;
+    align-items: center;
+}
+
+.message-text {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.message.user .message-container {
+    justify-content: flex-end;
+    border-radius: 12px;
+    background: rgba(255, 143, 81, 0.20);
+}
+
+.message.ai .message-container {
+    justify-content: flex-start;
+    border-radius: 12px;
+    background: rgba(58, 223, 255, 0.20);
+}
+
+.message.user .message-text {
+    margin-left: auto;
+
+    background: rgba(255, 143, 81, 0.20);
+    color: #FFF;
+    font-feature-settings: 'dlig' on;
+    font-family: Inter;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    /* 150% */
+    letter-spacing: -0.16px;
+}
+
+.message.ai .message-text {
+    margin-right: auto;
+
+    background: rgba(58, 223, 255, 0.20);
+    color: #FFF;
+    font-feature-settings: 'dlig' on;
+    font-family: Inter;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    /* 150% */
+    letter-spacing: -0.16px;
+}
+
+/* 等待侦察指数的页面css */
+#waiting-for-dice {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.70);
+}
+
+#waiting-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    color: #FFF;
+    text-align: center;
+    font-feature-settings: 'dlig' on;
+    font-family: Inter;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 60px;
+    /* 187.5% */
+    letter-spacing: -0.32px;
+}
+
+#color-logo {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

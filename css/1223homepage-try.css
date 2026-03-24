@@ -1,0 +1,82 @@
+#screen-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-size: cover;
+    -webkit-background-size: cover;
+    z-index: -1;
+
+    width: 100%;
+    height: 100%;
+    background: url(../images/bg.png) no-repeat center center fixed;
+}
+
+#demo-title {
+    position: absolute;
+    left: 50%;
+    /* 将元素的左边缘移动到页面宽度的50%处 */
+    top: 32%;
+    /* 将元素的上边缘移动到页面高度的50%处 */
+    transform: translate(-50%);
+    /* 将元素的中心点移动到页面的中心点 */
+
+    /* filter: blur(8.7px); 模糊效果*/
+    background: linear-gradient(180deg,
+            rgb(58.32, 223.43, 255) 0%,
+            rgb(255, 143, 81) 25%,
+            rgb(67.73, 105.43, 239.06) 50%,
+            rgb(58.32, 223.43, 255) 75%,
+            rgb(255, 143.48, 80.75) 100%);
+    font-size: 147.9px;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: "Krona One-Regular", Helvetica;
+    font-weight: 400;
+    color: transparent;
+    letter-spacing: 0;
+}
+
+#demo-little-title {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%);
+
+    font-family: "Inter-Medium", Helvetica;
+    font-weight: 500;
+    color: #818181;
+    font-size: 36px;
+    text-align: center;
+    letter-spacing: 10.8px;
+    white-space: nowrap;
+}
+
+#start-button {
+    position: absolute;
+    left: 50%;
+    top: 92%;
+    transform: translate(-50%,-50%);
+
+    width: 20%;
+    height: 8%;
+    background: linear-gradient(90deg, #3ADFFF 0%, #FF8F51 100%);
+    border-radius: 12px;
+}
+
+#start-button-text {
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    position: relative;
+    width: fit-content;
+    font-family: "Krona One-Regular", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 40px;
+    text-align: center;
+    letter-spacing: -0.4px;
+    white-space: nowrap;
+}

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-demo-chatpage</title>
+    <link rel="stylesheet" href="../css/chatpage-1227-try1.css">
+</head>
+
+<body>
+    <div id="screen-background">
+        <!-- chabox的标题和装饰线条 -->
+        <div id="chatbox-title">
+            <p id="chatbox-title-text">ChatBox</p>
+            <svg id="line-chatbox-title" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 909 12" fill="none">
+                <path d="M0.226497 6L6 11.7735L11.7735 6L6 0.226497L0.226497 6ZM6 7L909 7.00008L909 5.00008L6 5L6 7Z"
+                    fill="#828282" />
+            </svg>
+        </div>
+
+        <!-- 这里是输入文本的地方，之后接入语音接口后删除这一部分 -->
+        <input type="text" id="question" placeholder="Type your message here..." style="visibility: hidden;">
+        <button onclick="sendMessage()" style="visibility: hidden;">Send</button>
+
+        <!-- 聊天界面里的内容 -->
+        <div id="chat-interface">
+            <div id="chat-logs"></div>
+
+            <!-- 添加音频播放器 -->
+            <audio id="tts-audio" style="display: none;">
+                <source id="tts-audio-source" src="" type="audio/wav">
+                您的浏览器不支持音频播放。
+            </audio>
+
+            <button id="dice-button">
+                <span id="dice-button-text">掷骰子</span>
+            </button>
+
+            <button id="voice-button">
+                <span id="voice-button-text">语音</span>
+            </button>
+        </div>
+        <!-- 人物卡的标题和装饰线条 -->
+        <div id="charactercard-title">
+            <p id="charactercard-title-text">人物卡</p>
+            <svg id="charactercard-title-line1" ;xmlns="http://www.w3.org/2000/svg" viewBox="0 0 181 12" fill="none">
+                <path d="M180.773 6L175 0.226497L169.226 6L175 11.7735L180.773 6ZM0 7H175V5H0V7Z" fill="#828282" />
+            </svg>
+            <svg id="charactercard-title-line2" ;xmlns="http://www.w3.org/2000/svg" viewBox="0 0 181 12" fill="none">
+                <path d="M0.226497 6L6 11.7735L11.7735 6L6 0.226497L0.226497 6ZM6 7L181 7.00002L181 5.00002L6 5L6 7Z"
+                    fill="#828282" />
+            </svg>
+        </div>
+        <!-- 人物卡里的内容 -->
+        <div id="charactercard-interface">
+            <div id="character-image-container">
+                <img id="character-image" src="" alt="未找到人物图片">
+            </div>
+            <div id="basic-information">
+                <span id="title-basic-information">Ⅰ&nbsp;&nbsp;调查员信息</span>
+                <span id="gender">性别：<span>女</span></span>
+                <span id="age">年龄：<span>28</span></span>
+                <span id="occupation">职业：<span>记者</span></span>
+                <span id="address">住址：<span>艾尔斯伯里大街5号</span></span>
+            </div>
+
+            <div id="attribute">
+                <span id="title-attribute">Ⅱ&nbsp;&nbsp;属性</span>
+                <span id="str">力量STR：<span>79</span>
+                    <span id="str-bar-1">
+                        <svg id="str-light-spot" ;xmlns="http://www.w3.org/2000/svg" viewBox="0 0 86 69" fill="none">
+                            <g style="mix-blend-mode:color-dodge">
+                                <ellipse cx="42.6667" cy="34.4863" rx="42.6667" ry="34.2954"
+                                    fill="url(#paint0_radial_51_96)" />
+                            </g>
+                            <defs>
+                                <radialGradient id="paint0_radial_51_96" cx="0" cy="0" r="1"
+                                    gradientUnits="userSpaceOnUse"
+                                    gradientTransform="translate(42.6667 34.4863) rotate(90) scale(34.2954 42.6667)">
+                                    <stop stop-color="#D9D9D9" />
+                                    <stop offset="1" stop-opacity="0" />
+                                </radialGradient>
+                            </defs>
+                        </svg>
+                    </span>
+                    <span id="str-bar-2"></span>
+                    <span id="str-bar-3"></span>
+                </span>
+
+                <span id="dex">敏捷DEX：<span>75</span>
+                    <span id="dex-bar-1">
+                        <svg id="dex-light-spot" ;xmlns="http://www.w3.org/2000/svg" viewBox="0 0 86 69" fill="none">
+                            <g style="mix-blend-mode:color-dodge">
+                                <ellipse cx="42.6667" cy="34.4863" rx="42.6667" ry="34.2954"
+                                    fill="url(#paint0_radial_51_96)" />
+                            </g>
+                            <defs>
+                                <radialGradient id="paint0_radial_51_96" cx="0" cy="0" r="1"
+                                    gradientUnits="userSpaceOnUse"
+                                    gradientTransform="translate(42.6667 34.4863) rotate(90) scale(34.2954 42.6667)">
+                                    <stop stop-color="#D9D9D9" />
+                                    <stop offset="1" stop-opacity="0" />
+                                </radialGradient>
+                            </defs>
+                        </svg>
+                    </span>
+                    <span id="dex-bar-2"></span>
+                    <span id="dex-bar-3"></span>
+                </span>
+
+                <span id="luk">幸运LUK：<span>66</span>
+                    <span>
+                        <span id="luk-bar-1">
+                            <svg id="luk-light-spot" ; xmlns="http://www.w3.org/2000/svg" viewBox="0 0 86 69"
+                                fill="none">
+                                <g style="mix-blend-mode:color-dodge">
+                                    <ellipse cx="42.6667" cy="34.4863" rx="42.6667" ry="34.2954"
+                                        fill="url(#paint0_radial_51_96)" />
+                                </g>
+                                <defs>
+                                    <radialGradient id="paint0_radial_51_96" cx="0" cy="0" r="1"
+                                        gradientUnits="userSpaceOnUse"
+                                        gradientTransform="translate(42.6667 34.4863) rotate(90) scale(34.2954 42.6667)">
+                                        <stop stop-color="#D9D9D9" />
+                                        <stop offset="1" stop-opacity="0" />
+                                    </radialGradient>
+                                </defs>
+                            </svg>
+                        </span>
+                        <span id="luk-bar-2"></span>
+                        <span id="luk-bar-3"></span>
+
+                    </span>
+                </span>
+
+                <span id="int">智力INT：<span>80</span>
+                    <span id="int-bar-1">
+                        <svg id="int-light-spot" ; xmlns="http://www.w3.org/2000/svg" viewBox="0 0 86 69" fill="none">
+                            <g style="mix-blend-mode:color-dodge">
+                                <ellipse cx="42.6667" cy="34.4863" rx="42.6667" ry="34.2954"
+                                    fill="url(#paint0_radial_51_96)" />
+                            </g>
+                            <defs>
+                                <radialGradient id="paint0_radial_51_96" cx="0" cy="0" r="1"
+                                    gradientUnits="userSpaceOnUse"
+                                    gradientTransform="translate(42.6667 34.4863) rotate(90) scale(34.2954 42.6667)">
+                                    <stop stop-color="#D9D9D9" />
+                                    <stop offset="1" stop-opacity="0" />
+                                </radialGradient>
+                            </defs>
+                        </svg>
+                    </span>
+                    <span id="int-bar-2"></span>
+                    <span id="int-bar-3"></span>
+                </span>
+            </div>
+
+
+            <div id="skill">
+                <span id="title-skill">Ⅲ&nbsp;&nbsp;技能</span>
+                <span id="inspect">侦察：<span>36</span></span>
+                <span id="psychology">心理学：<span>51</span></span>
+                <span id="social">交涉：<span>37</span></span>
+                <span id="run">跑步：<span>23</span></span>
+                <span id="library-use">图书馆使用：<span>40</span></span>
+                <span id="credit">信用：<span>53</span></span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 等待侦察指数的页面 -->
+    <div id="waiting-for-dice">
+        <svg id="color-logo" ;xmlns="http://www.w3.org/2000/svg" width="84" height="84" viewBox="0 0 84 84" fill="none">
+            <circle cx="42" cy="42" r="42" fill="url(#paint0_linear_45_571)" />
+            <defs>
+                <linearGradient id="paint0_linear_45_571" x1="0" y1="84.0018" x2="328.371" y2="84.0018"
+                    gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#3ADFFF" />
+                    <stop offset="0.25" stop-color="#FF8F51" />
+                    <stop offset="0.5" stop-color="#4469EF" />
+                    <stop offset="0.75" stop-color="#3ADFFF" />
+                    <stop offset="1" stop-color="#FF8F51" />
+                </linearGradient>
+            </defs>
+        </svg>
+        <span id="waiting-text">您的侦察数值是...</p>
+    </div>
+
+    <!-- 等待侦察指数的页面 -->
+    <script>
+        // 获取按钮和覆盖层的元素
+        const diceButton = document.getElementById('dice-button');
+        const overlay = document.getElementById('waiting-for-dice');
+        // 为按钮添加点击事件监听器
+        diceButton.addEventListener('click', function () {
+            // 显示覆盖层
+            overlay.style.display = 'block';
+            // 生成随机数并显示
+            const randomNumber = Math.floor(Math.random() * 100) + 1; // 生成1到100的随机数
+            document.getElementById('waiting-text').innerText = `您的侦察数值是... ${randomNumber}`;
+        });
+    </script>
+
+    <!-- 侦察指数界面点击空白处返回 -->
+    <script>
+        overlay.addEventListener('click', function () {
+            overlay.style.display = 'none';
+
+            setTimeout(() => {
+                displayMessage('ai', '恭喜你通过鉴定。请提问。');
+            }, 1000);
+        });
+    </script>
+
+    <!-- 定义一个对象，用于存储不同卡片的数据 -->
+    <script>
+        const characters = {
+            "1": {
+                "name": "莉莉丝·柯林斯",
+                "basic-information": {
+                    "gender": "女",
+                    "age": "26",
+                    "occupation": "侦探",
+                    "address": "艾尔斯伯里大街5号"
+                },
+                "attribute": {
+                    "str": "79",
+                    "dex": "65",
+                    "luk": "66",
+                    "int": "80"
+                },
+                "skill": {
+                    "inspect": "36",
+                    "psychology": "51",
+                    "social": "45",
+                    "run": "23",
+                    "library-use": "60",
+                    "credit": "45"
+                }
+            },
+            "2": {
+                "name": "罗拉·汉斯",
+                "basic-information": {
+                    "gender": "女",
+                    "age": "26",
+                    "occupation": "侦探",
+                    "address": "艾尔斯伯里大街5号"
+                },
+                "attribute": {
+                    "str": "78",
+                    "dex": "65",
+                    "luk": "66",
+                    "int": "80"
+                },
+                "skill": {
+                    "inspect": "36",
+                    "psychology": "51",
+                    "social": "45",
+                    "run": "23",
+                    "library-use": "60",
+                    "credit": "45"
+                }
+            },
+            "3": {
+                "name": "里昂·道格拉斯",
+                "basic-information": {
+                    "gender": "女",
+                    "age": "26",
+                    "occupation": "侦探",
+                    "address": "艾尔斯伯里大街5号"
+                },
+                "attribute": {
+                    "str": "45",
+                    "dex": "70",
+                    "luk": "40",
+                    "int": "50"
+                },
+                "skill": {
+                    "inspect": "36",
+                    "psychology": "51",
+                    "social": "45",
+                    "run": "23",
+                    "library-use": "60",
+                    "credit": "45"
+                }
+            }
+        }
+    </script>
+
+    <!-- 根据上一个页面选择的人物不同加载不同的数据和人物图片 -->
+    <script>
+        // 定义一个函数，用于获取url中的查询参数，即获取1/2/3的card号码
+        function getQueryParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        //定义一个函数，根据不同的card号码加载不同的数据和图片
+        document.addEventListener('DOMContentLoaded', function () {
+            const cardNumber = getQueryParameter('card');//获取url中的查询参数
+            const imageElement = document.getElementById('character-image');//加载图片
+            const characterData = characters[cardNumber];//加载数据
+
+            if (characterData) {
+                // 填充基本信息
+                document.querySelector('#gender span:last-child').textContent = characterData['basic-information'].gender;
+                document.querySelector('#age span:last-child').textContent = characterData['basic-information'].age;
+                document.querySelector('#occupation span:last-child').textContent = characterData['basic-information'].occupation;
+                document.querySelector('#address span:last-child').textContent = characterData['basic-information'].address;
+
+                // 填充属性信息  
+                document.querySelector('#str span:first-child').textContent = characterData.attribute.str;
+                document.querySelector('#dex span:first-child').textContent = characterData.attribute.dex;
+                document.querySelector('#luk span:first-child').textContent = characterData.attribute.luk;
+                document.querySelector('#int span:first-child').textContent = characterData.attribute.int;
+
+                // 填充技能信息
+                document.querySelector('#inspect span:last-child').textContent = characterData.skill.inspect;
+                document.querySelector('#psychology span:last-child').textContent = characterData.skill.psychology;
+                document.querySelector('#social span:last-child').textContent = characterData.skill.social;
+                document.querySelector('#run span:last-child').textContent = characterData.skill.run;
+                document.querySelector('#library-use span:last-child').textContent = characterData.skill['library-use'];
+                document.querySelector('#credit span:last-child').textContent = characterData.skill.credit;
+
+                updateLightSpots(characterData.attribute);
+                // 填充属性信息并更新light-spot位置
+                function updateLightSpots(attribute) {
+                    // 更新str光点位置
+                    var strValue = parseInt(attribute.str, 10);
+                    var strBar = document.getElementById('str-bar-1');
+                    var strbarWidth = strBar.clientWidth;
+                    var strlightSpot = document.getElementById('str-light-spot');
+                    var strlightSpotPosition = (strValue / 100) * strbarWidth;
+                    strlightSpot.style.left = strlightSpotPosition + 'px';
+                    strlightSpot.style.display = 'block';
+                    // 更新dex光点位置
+                    var dexValue = parseInt(attribute.dex, 10);
+                    var dexBar = document.getElementById('dex-bar-1');
+                    var dexbarWidth = dexBar.clientWidth;
+                    var dexlightSpot = document.getElementById('dex-light-spot');
+                    var dexlightSpotPosition = (dexValue / 100) * dexbarWidth;
+                    dexlightSpot.style.left = dexlightSpotPosition + 'px';
+                    dexlightSpot.style.display = 'block';
+                    // 更新luk光点位置
+                    var lukValue = parseInt(attribute.luk, 10);
+                    var lukBar = document.getElementById('luk-bar-1');
+                    var lukbarWidth = lukBar.clientWidth;
+                    var luklightSpot = document.getElementById('luk-light-spot');
+                    var luklightSpotPosition = (lukValue / 100) * lukbarWidth;
+                    luklightSpot.style.left = luklightSpotPosition + 'px';
+                    luklightSpot.style.display = 'block';
+                    // 更新int光点位置
+                    var intValue = parseInt(attribute.int, 10);
+                    var intBar = document.getElementById('int-bar-1');
+                    var intbarWidth = intBar.clientWidth;
+                    var intlightSpot = document.getElementById('int-light-spot');
+                    var intlightSpotPosition = (intValue / 100) * intbarWidth;
+                    intlightSpot.style.left = intlightSpotPosition + 'px';
+                    intlightSpot.style.display = 'block';
+                }
+
+                // 设置人物图片
+                const imageElement = document.getElementById('character-image');
+                switch (cardNumber) {
+                    case '1':
+                        imageElement.src = '../images/characterimage1.png';
+                        break;
+                    case '2':
+                        imageElement.src = '../images/characterimage2.png';
+                        break;
+                    case '3':
+                        imageElement.src = '../images/characterimage3.png';
+                        break;
+                    default:
+                        imageElement.src = '../images/characterimage3.png'; // 暂时无用
+                }
+            } else {
+                console.error('未找到对应卡片的数据');
+            }
+        });
+
+    </script>
+
+    <!-- 以下是对话的页面 -->
+    <script>
+        // 创建一个函数来发送 /gamestart 请求
+        function triggerGameStart() {
+            fetch('/gamestart')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success' || data.message) {
+                        displayMessage('ai', data.message);
+
+                        // 如果有语音，播放开场白音频
+                        if (data.audio_url) {
+                            const audioElement = document.getElementById('tts-audio');
+                            const audioSource = document.getElementById('tts-audio-source');
+                            audioSource.src = data.audio_url + '?t=' + new Date().getTime();
+                            audioElement.load();
+                            audioElement.oncanplaythrough = () => {
+                                audioElement.play().catch(e => console.error('开场白音频播放失败:', e));
+                            };
+                        }
+                    } else {
+                        console.error('gamestart error:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching game start message:', error);
+                    displayMessage('error', 'Failed to fetch game start message.');
+                });
+        }
+
+        // 页面加载完成后自动调用 triggerGameStart 函数
+        document.addEventListener('DOMContentLoaded', function () {
+            triggerGameStart();
+        });
+
+        // 获取并显示聊天记录
+        function loadMessages() {
+            fetch('/get_messages')
+                .then(response => response.json())
+                .then(data => {
+                    const chatLogs = document.getElementById('chat-logs');
+                    chatLogs.innerHTML = ''; // 清空当前聊天记录
+                    data.chat_history.forEach(item => {
+                        displayMessage(item.role, item.content);
+                    });
+                    chatLogs.scrollTop = chatLogs.scrollHeight; // 滚动到聊天记录底部
+                })
+                .catch(error => {
+                    console.error('Error fetching messages:', error);
+                });
+        }
+
+        //创建sendmessage函数
+        function sendMessage() {
+            const question = document.getElementById('question').value;//获取用户输入的问题的文本内容
+            if (question.trim()) {//使用trim()方法去除字符串两端的空白字符
+                displayMessage('user', question);//调用displayMessage函数显示用户消息
+                console.log("发送消息:", question);  // 调试日志
+
+                fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        'message': question
+                    })
+                })
+                    .then(response => {
+                        console.log("收到响应:", response);  // 调试日志
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("收到服务器响应:", data);  // 调试日志
+
+                        if (data.status === 'success') {
+                            if (data.answer) {
+                                displayMessage('ai', data.answer);
+                            }
+
+                            if (data.audio_url) {
+                                console.log("准备播放音频:", data.audio_url);
+                                const audioElement = document.getElementById('tts-audio');
+                                const audioSource = document.getElementById('tts-audio-source');
+
+                                // 显示音频控件
+                                audioElement.style.display = 'none';
+
+                                // 添加时间戳避免缓存
+                                const audioUrl = data.audio_url + '?t=' + new Date().getTime(); // 修改1: 定义audioUrl
+                                audioSource.src = audioUrl;  // 修改2: 使用正确的audioUrl
+
+                                // 重新加载音频
+                                audioElement.onloadstart = () => console.log("开始加载音频");
+                                audioElement.onprogress = () => console.log("音频加载中...");
+                                audioElement.onloadedmetadata = () => console.log("音频元数据已加载");
+
+                                audioElement.load();
+
+                                // 监听加载完成事件
+                                audioElement.oncanplaythrough = () => {
+                                    console.log("音频已加载，开始播放");
+                                    console.log("音频时长:", audioElement.duration);
+                                    console.log("音频就绪状态:", audioElement.readyState);
+                                    audioElement.play()
+                                        .then(() => console.log("播放成功"))
+                                        .catch(e => {
+                                            console.error('播放失败:', e);
+                                            console.error('音频状态:', {
+                                                paused: audioElement.paused,
+                                                currentTime: audioElement.currentTime,
+                                                duration: audioElement.duration,
+                                                readyState: audioElement.readyState
+                                            });
+                                        });
+                                };
+
+                                audioElement.onerror = (e) => {
+                                    console.error('音频加载错误:', e);
+                                    console.error('错误代码:', audioElement.error.code);
+                                    console.error('错误信息:', audioElement.error.message);
+                                };
+
+                            } else {
+                                console.log("没有收到音频URL");
+                            }
+                        } else {
+                            console.error('响应错误:', data.message || '未知错误');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('请求错误:', error);
+                        displayMessage('error', '发送消息失败');
+                    });
+
+                // Clear the input field
+                document.getElementById('question').value = ''; //将输入框内的文本内容清空，以便用户可以继续发送新的消息
+            }
+        }
+
+        //创建displayMessage函数，用于在聊天界面中显示消息
+        function displayMessage(type, message) {
+            const chatLogs = document.getElementById('chat-logs');//获取聊天日志的容器元素
+            const messageContainer = document.createElement('div');//创建一个新的div元素，用于包含消息内容和样式信息
+            messageContainer.className = 'message-container message ' + type;//设置消息容器的类名，以便应用相应的样式信息
+
+            const messageText = document.createElement('div');//创建一个新的div元素，用于包含消息文本内容
+            messageText.className = 'message-text';//设置消息文本的类名，以便应用相应的样式信息
+            messageText.textContent = message;//设置消息文本的内容为传入的message参数值
+
+            messageContainer.appendChild(messageText);//将消息文本元素添加到消息容器中
+            chatLogs.appendChild(messageContainer);//将消息容器添加到聊天日志的容器中，以便显示在聊天界面中
+
+            // // 检查 answer 是否为特定的句子
+            // if (message === '这些书是经典文学和哲学著作，比如《失乐园》和《理想国》。道格拉斯常说，书页的香气胜过任何红酒。') {
+            //     setTimeout(() => {
+            //         displayMessage('ai', '你离开托马斯，碰见了邻居莱拉·奥戴尔，她是一个知情者，你走上前。【你触发了与莱拉·奥戴尔的对话。】');
+            //         setTimeout(() => {
+            //             displayMessage('ai', '你问道：“您好，我们在调查道格拉斯・金博尔先生的事情，您是否注意到他有什么特别的举动或者常去的地方呢？”莱拉・奥戴尔回忆着说：“我记得他呀，经常夹着一本书路过我家窗前，朝着公墓的方向去。他不管去哪儿都带着书，对书可着迷了。”【进入交涉鉴定，请玩家投掷骰子。】');
+            //         }, 1000);
+            //     }, 1000);
+            // }
+            // if (message === '嗯，那天晚上，他抱着一本书走向公墓，月光洒在他身上，像个吟游诗人。') {
+            //     setTimeout(() => {
+            //         displayMessage('ai', '你离开了邻居莱拉·奥戴尔，进入墓地寻找线索，与看守梅洛迪亚斯·杰弗逊交流。【进入信任鉴定，请玩家投掷骰子。】');
+            //     }, 1000);
+            // }
+
+            chatLogs.scrollTop = chatLogs.scrollHeight; //将滚动条自动移动到聊天日志的底部，以便用户可以看到最新的消息
+        }
+
+        // loadMessages 不再在页面加载时自动调用，避免与 triggerGameStart 重复显示开场白
+        // 如需手动刷新聊天记录可调用 loadMessages()
+
+    </script>
+
+    <!-- 语音识别功能 -->
+    <script>
+        // 获取语音按钮和文本元素
+        const voiceButton = document.getElementById('voice-button');
+        const voiceButtonText = document.getElementById('voice-button-text');
+
+        // 检查浏览器是否支持 Web Speech API
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.continuous = false; // 设置为 false，表示只识别一次
+            recognition.interimResults = false; // 设置为 false，表示只返回最终结果
+            recognition.lang = 'zh-CN'; // 设置识别语言为中文
+
+            //储存初始按钮的文本和样式，以便在语音识别结束后恢复
+            const initialButtonText = voiceButtonText.textContent;
+            const initialButtonStyles = voiceButton.style.cssText;
+
+            // 当用户点击语音按钮时开始语音识别
+            voiceButton.addEventListener('click', function () {
+                voiceButtonText.textContent = '语音识别中...'; // 更改按钮文本
+                voiceButton.style.backgroundColor = '#F4A579'; // 更改按钮背景颜色
+                voiceButton.style.color = '#000'; // 更改按钮文本颜色（如果需要的话）
+                recognition.start();
+            });
+
+            // 当语音识别有结果时触发
+            recognition.onresult = function (event) {
+                const transcript = event.results[0][0].transcript; // 获取识别结果
+                document.getElementById('question').value = transcript; // 将识别结果填入输入框
+                sendMessage(); // 自动发送消息
+            };
+
+            // 当语音识别出错时触发
+            recognition.onerror = function (event) {
+                console.error('语音识别错误:', event.error);
+                displayMessage('error', '语音识别失败，请重试。');
+                voiceButtonText.textContent = initialButtonText;
+                voiceButton.style.cssText = initialButtonStyles;
+            };
+
+            // 当语音识别结束时触发
+            recognition.onend = function () {
+                console.log('语音识别结束');
+                voiceButtonText.textContent = initialButtonText;
+                voiceButton.style.cssText = initialButtonStyles;
+            };
+        } else {
+            console.error('浏览器不支持 Web Speech API');
+            displayMessage('error', '您的浏览器不支持语音识别功能。');
+        }
+    </script>
+
+    <!-- 请求麦克风权限 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function (stream) {
+                    console.log('麦克风访问已授权');
+                })
+                .catch(function (err) {
+                    console.error('无法访问麦克风:', err);
+                    displayMessage('error', '无法访问麦克风，请确保已授予麦克风权限。');
+                });
+        });
+    </script>
+</body>
+
+</html>

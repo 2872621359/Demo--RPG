@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(python -c \"import langgraph.prebuilt; print\\(dir\\(langgraph.prebuilt\\)\\)\")",
+      "Bash(python3 -c \"import langchain_google_genai; print\\(''OK''\\)\")",
+      "Bash(python3 app.py)",
+      "Bash(python3 -c \":*)"
+    ]
+  }
+}

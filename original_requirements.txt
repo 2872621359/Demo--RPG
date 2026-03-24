@@ -1,0 +1,8 @@
+flask
+openai
+langgraph
+langchain
+langchain-core
+langchain-openai
+chromadb
+pydantic
