@@ -580,10 +580,9 @@
             voiceButton.addEventListener('click', function () {
                 // 立刻停止 AI 语音播报
                 const audioElement = document.getElementById('tts-audio');
-                if (!audioElement.paused) {
-                    audioElement.pause();
-                    audioElement.currentTime = 0;
-                }
+                audioElement.pause();
+                document.getElementById('tts-audio-source').removeAttribute('src');
+                audioElement.load();
 
                 voiceButtonText.textContent = '语音识别中...'; // 更改按钮文本
                 voiceButton.style.backgroundColor = '#F4A579'; // 更改按钮背景颜色
