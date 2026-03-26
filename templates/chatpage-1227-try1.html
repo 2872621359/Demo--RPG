@@ -578,9 +578,10 @@
 
             // 当用户点击语音按钮时开始语音识别
             voiceButton.addEventListener('click', function () {
-                // 立刻停止 AI 语音播报
+                // 立刻停止 AI 语音播报，并清除回调防止再次自动播放
                 const audioElement = document.getElementById('tts-audio');
                 audioElement.pause();
+                audioElement.oncanplaythrough = null;
                 document.getElementById('tts-audio-source').removeAttribute('src');
                 audioElement.load();
 

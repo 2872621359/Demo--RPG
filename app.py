@@ -499,7 +499,7 @@ if __name__ == "__main__":
         for k, v in content.items():
             os.environ[k] = v
 
-    gemini_api_key = os.getenv("GEMINI_API_KEY", "AIzaSyBzkpSW5UFWQ83jJxX8rCDBd-BXIqGA9LY")
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
 
     model = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
