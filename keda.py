@@ -16,7 +16,7 @@ import _thread as thread
 import os
 import wave
 from pydub import AudioSegment
-import playsound   # 使用 playsound 库播放音频
+# import playsound   # 使用 playsound 库播放音频（云端服务器不支持）
 
 STATUS_FIRST_FRAME = 0  # 第一帧的标识
 STATUS_CONTINUE_FRAME = 1  # 中间帧标识
@@ -168,7 +168,6 @@ if __name__ == "__main__":
     from pydub import AudioSegment
     song = AudioSegment.from_wav("demo.wav")
     song.export("wav-mp3.mp3", format="mp3")
-    # 播放生成的 wav 文件
-    playsound.playsound("demo.wav")
+    # playsound.playsound("demo.wav")  # 云端服务器不支持本地播放
     # 明确导出所有需要的对象供其他模块使用
 __all__ = ['Ws_Param', 'WebSocketApp', 'pcm2wav', 'on_error', 'on_close', 'on_message', 'on_open']
