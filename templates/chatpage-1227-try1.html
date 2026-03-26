@@ -511,6 +511,7 @@
                             }
                         } else {
                             console.error('响应错误:', data.message || '未知错误');
+                            displayMessage('error', '服务器错误: ' + (data.message || '未知错误'));
                         }
                     })
                     .catch(error => {

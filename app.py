@@ -408,6 +408,8 @@ def my_send_message(chatbot: ChatBot):
                     })
             
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"Error in my_send_message: {str(e)}")
             return jsonify({
                 "status": "error",
