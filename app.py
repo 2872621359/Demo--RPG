@@ -14,7 +14,6 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 import threading
-import webbrowser
 
 #import torch
 import os
@@ -483,49 +482,43 @@ def initialize_gemini_embeddings(api_key):
         google_api_key=api_key
     )
 
-def run_flask():
-    app.run(debug=False, use_reloader=False)
+DOC_PATH = "./document"
+CHROMA_PATH = "./chroma"
 
-def open_browser():
-    time.sleep(1)
-    webbrowser.open("http://127.0.0.1:5003")
-
-if __name__ == "__main__":
-    DOC_PATH = "./document"
-    CHROMA_PATH = "./chroma"
-
+# 加载 api_keys.json（本地开发用），Render 上通过环境变量配置
+if os.path.exists('./api_keys.json'):
     with open('./api_keys.json') as f:
         content = json.load(f)
         for k, v in content.items():
             os.environ[k] = v
 
-    gemini_api_key = os.getenv("GEMINI_API_KEY")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
 
-    model = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        google_api_key=gemini_api_key,
-    )
+model = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    google_api_key=gemini_api_key,
+)
 
-    embeddings = initialize_gemini_embeddings(api_key=gemini_api_key)
+embeddings = initialize_gemini_embeddings(api_key=gemini_api_key)
 
-    system_prompt = '你是一名跑团游戏的DM，负责引导玩家在跑团游戏中探索故事和解决谜题...'
+system_prompt = '你是一名跑团游戏的DM，负责引导玩家在跑团游戏中探索故事和解决谜题...'
 
-    chatbot = ChatBot(model=model, embeddings=embeddings, system_prompt=system_prompt,
-                      document_path=DOC_PATH, chroma_path=CHROMA_PATH, thread_id="1")
+chatbot = ChatBot(model=model, embeddings=embeddings, system_prompt=system_prompt,
+                  document_path=DOC_PATH, chroma_path=CHROMA_PATH, thread_id="1")
 
-    @app.route('/gamestart', methods=['GET'])
-    def gamestart():
-        return my_gamestart(chatbot=chatbot)
+@app.route('/gamestart', methods=['GET'])
+def gamestart():
+    return my_gamestart(chatbot=chatbot)
 
-    @app.route('/send_message', methods=['POST'])
-    def send_message():
-        return my_send_message(chatbot=chatbot)
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    return my_send_message(chatbot=chatbot)
 
-    @app.route('/get_messages', methods=['GET'])
-    def get_messages():
-        return my_get_messages(chatbot=chatbot)
+@app.route('/get_messages', methods=['GET'])
+def get_messages():
+    return my_get_messages(chatbot=chatbot)
 
-    # 启动 Flask 与浏览器
-    threading.Timer(1, open_browser).start()
-    app.run(port=5003, debug=False, use_reloader=False)
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 5003))
+    app.run(port=port, debug=False, use_reloader=False)
 
