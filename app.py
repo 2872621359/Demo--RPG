@@ -43,9 +43,9 @@ sys.path.insert(0, parentdir)
 
 app = Flask(__name__)
 
-# 定义音频文件保存路径
-PCM_OUTPUT_PATH = "static/audio/output.pcm"
-WAV_OUTPUT_PATH = "static/audio/output.wav"
+# 定义音频文件保存路径（使用绝对路径避免工作目录问题）
+PCM_OUTPUT_PATH = os.path.join(currentdir, "static", "audio", "output.pcm")
+WAV_OUTPUT_PATH = os.path.join(currentdir, "static", "audio", "output.wav")
 
 @app.route('/static/audio/<path:filename>')
 def serve_audio(filename):
@@ -482,12 +482,13 @@ def initialize_gemini_embeddings(api_key):
         google_api_key=api_key
     )
 
-DOC_PATH = "./document"
-CHROMA_PATH = "./chroma"
+DOC_PATH = os.path.join(currentdir, "document")
+CHROMA_PATH = os.path.join(currentdir, "chroma")
 
 # 加载 api_keys.json（本地开发用），Render 上通过环境变量配置
-if os.path.exists('./api_keys.json'):
-    with open('./api_keys.json') as f:
+_api_keys_path = os.path.join(currentdir, 'api_keys.json')
+if os.path.exists(_api_keys_path):
+    with open(_api_keys_path) as f:
         content = json.load(f)
         for k, v in content.items():
             os.environ[k] = v
