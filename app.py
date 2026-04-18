@@ -17,6 +17,7 @@ import threading
 
 #import torch
 import os
+import re
 import json
 import random
 import sys
@@ -114,51 +115,65 @@ def get_message_formatted(message: AnyMessage):
     message_formatted = {'role': message.type, 'content': message.content}
     return message_formatted
 
-def load_documents(document_path):
+def load_documents_by_level(document_path):
+    """加载文档并按关卡分割，每个chunk携带level元数据"""
     folder_path = document_path
-    documents = []
+    full_text = ""
     for filename in os.listdir(folder_path):
         if filename.startswith('.') or filename.startswith('~'):
             continue
         file_path = os.path.join(folder_path, filename)
-        _, file_extension = os.path.splitext(filename)
-        if file_extension == ".pdf":
-            document_loader = PyPDFLoader(file_path)
-            documents.extend(document_loader.load())
-        elif file_extension == ".docx":
-            document_loader = Docx2txtLoader(file_path)
-            documents.extend(document_loader.load())
-    return documents
-
-def calculate_chunk_ids(chunks):
-    last_page_id = None
-    current_chunk_index = 0
-
-    for chunk in chunks:
-        source = chunk.metadata.get("source")
-        page = chunk.metadata.get("page")
-        current_page_id = f"{source}:{page}"
-
-        if current_page_id == last_page_id:
-            current_chunk_index += 1
+        _, ext = os.path.splitext(filename)
+        if ext == ".pdf":
+            docs = PyPDFLoader(file_path).load()
+        elif ext == ".docx":
+            docs = Docx2txtLoader(file_path).load()
         else:
-            current_chunk_index = 0
+            continue
+        full_text += "\n".join(d.page_content for d in docs) + "\n"
 
-        chunk_id = f"{current_page_id}:{current_chunk_index}"
-        last_page_id = current_page_id
+    level_pattern = re.compile(r'(节点\d+[：:][^\n]*)', re.MULTILINE)
+    parts = level_pattern.split(full_text)
 
-        chunk.metadata["id"] = chunk_id
-
-    return chunks
-
-def split_documents(documents: list[Document]):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=80,
-        length_function=len,
-        is_separator_regex=False,
+        chunk_size=800, chunk_overlap=80, length_function=len, is_separator_regex=False
     )
-    return text_splitter.split_documents(documents)
+
+    all_chunks = []
+
+    # level 0：节点1之前的背景/开场内容
+    if parts[0].strip():
+        intro_chunks = text_splitter.create_documents(
+            [parts[0].strip()],
+            metadatas=[{"level": 0, "level_title": "背景信息"}]
+        )
+        all_chunks.extend(intro_chunks)
+
+    # level 1~N：每个节点
+    i = 1
+    while i < len(parts) - 1:
+        header = parts[i]
+        content = parts[i + 1] if i + 1 < len(parts) else ""
+        m = re.match(r'节点(\d+)[：:](.*)', header)
+        level_num = int(m.group(1)) if m else (i + 1) // 2
+        level_title = m.group(2).strip() if m else header.strip()
+
+        node_chunks = text_splitter.create_documents(
+            [f"{header}\n{content}".strip()],
+            metadatas=[{"level": level_num, "level_title": level_title}]
+        )
+        all_chunks.extend(node_chunks)
+        i += 2
+
+    # 为每个chunk生成唯一ID：level:title:index
+    level_counter = {}
+    for chunk in all_chunks:
+        key = chunk.metadata["level"]
+        idx = level_counter.get(key, 0)
+        chunk.metadata["id"] = f"level{key}:{idx}"
+        level_counter[key] = idx + 1
+
+    return all_chunks
 
 class ChatBot:
 
@@ -174,12 +189,13 @@ class ChatBot:
             persist_directory=chroma_path,
             embedding_function=embeddings
         )
-        documents = load_documents(document_path)
-        chunks = split_documents(documents)
+        chunks = load_documents_by_level(document_path)
         self.add_to_chroma(chunks)
         self.app = self.get_app()
-        
-        
+
+        self.current_node = 0   # 0=背景, 1~7=各节点
+        self.max_node = 7
+
         self.user_attributes = {
             "力量": 78,
             "敏捷": 65,
@@ -190,12 +206,10 @@ class ChatBot:
 
 
     def add_to_chroma(self, chunks: list[Document]):
-        chunks_with_ids = calculate_chunk_ids(chunks)
-
         existing_items = self.db.get(include=[])
         existing_ids = set(existing_items.get("ids", [])) if existing_items else set()
 
-        new_chunks = [chunk for chunk in chunks_with_ids if chunk.metadata["id"] not in existing_ids]
+        new_chunks = [chunk for chunk in chunks if chunk.metadata["id"] not in existing_ids]
         if new_chunks:
             new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks]
             self.db.add_documents(new_chunks, ids=new_chunk_ids)
@@ -214,9 +228,21 @@ class ChatBot:
         def call_model(state):
             messages = state["messages"]
             human_message = messages[-1]
-            results = self.db.similarity_search(human_message.content, k=3)
+            # 先检索当前节点内容，再检索背景层(level=0)作为补充
+            results = self.db.similarity_search(
+                human_message.content, k=3,
+                filter={"level": self.current_node}
+            )
+            if not results:
+                results = self.db.similarity_search(human_message.content, k=3)
             context = "\n".join([doc.page_content for doc in results])
-            messages.append({"role": "system", "content": f"下面是一些与用户的问题相关的内容可供参考：{context}"})
+            node_hint = f"节点{self.current_node}" if self.current_node > 0 else "背景信息"
+            messages.append({"role": "system", "content": (
+                f"【当前剧情进度：{node_hint}】\n"
+                f"请严格按照当前节点的剧情引导玩家，不要跳到后续节点。\n"
+                f"当玩家完成本节点的核心目标后，在回复末尾加上[ADVANCE_NODE]。\n"
+                f"相关剧本内容：{context}"
+            )})
             response = self.model.invoke(messages)
             message_formatted = get_message_formatted(response)
             self.message_history.append(message_formatted)
@@ -261,6 +287,14 @@ class ChatBot:
             for event in self.app.stream(Command(resume=message), self.config, stream_mode="values"):
                 response_text = event["messages"][-1].content
                 event["messages"][-1].pretty_print()
+
+        # 检测节点推进信号
+        if "[ADVANCE_NODE]" in response_text:
+            response_text = response_text.replace("[ADVANCE_NODE]", "").strip()
+            if self.current_node < self.max_node:
+                self.current_node += 1
+                print(f"[节点推进] 当前节点：{self.current_node}")
+
         return response_text
 
 def on_open(ws):
@@ -443,6 +477,7 @@ def my_gamestart(chatbot: ChatBot):
             "是先去调查道格拉斯的旧居，还是探索墓地寻找道格拉斯的踪迹呢？"
         )
         chatbot.message_history.append({'role': 'ai', 'content': response_text})
+        chatbot.current_node = 1  # 游戏正式开始，进入节点1：接任务
 
         # 把开场白追加到 system_prompt，让 AI 后续对话时知道自己说过什么
         chatbot.system_prompt += f"\n\n你已经对玩家说了以下开场白：\n{response_text}\n请基于这个开场白继续引导玩家。"
@@ -506,7 +541,17 @@ model = ChatGoogleGenerativeAI(
 
 embeddings = initialize_gemini_embeddings(api_key=gemini_api_key)
 
-system_prompt = '你是一名跑团游戏的DM，负责引导玩家在跑团游戏中探索故事和解决谜题...'
+system_prompt = (
+    "你是一名跑团游戏的DM，负责引导玩家在跑团游戏中探索故事和解决谜题；你的任务是：\n"
+    "1. 在开始时主动提供故事背景；\n"
+    "2. 回答玩家的问题，提供必要的线索。\n"
+    "3. 引导玩家逐步接触谜题，例如：\n"
+    "   - 调查道格拉斯的旧居。\n"
+    "   - 探索坟地，寻找道格拉斯的踪迹。\n"
+    "   - 发现食尸鬼的秘密。\n"
+    "4. 根据玩家的行动，动态调整故事的发展。\n"
+    "5. 保持神秘感和悬疑感，逐步揭示故事的真相。"
+)
 
 chatbot = ChatBot(model=model, embeddings=embeddings, system_prompt=system_prompt,
                   document_path=DOC_PATH, chroma_path=CHROMA_PATH, thread_id="1")
