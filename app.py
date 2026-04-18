@@ -388,7 +388,7 @@ def my_send_message(chatbot: ChatBot):
                     attribute_value = chatbot.user_attributes[attribute]
                     print(f"生成的随机数: {random_number}, 属性值: {attribute_value}")
                     
-                    if random_number < attribute_value:
+                    if random_number > attribute_value:
                         response_text = "您并未通过鉴定，请去别的地方探索吧"
                     else:
                         response_text = "恭喜你通过了鉴定，请说说下一步您将去哪里探索"
