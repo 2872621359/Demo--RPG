@@ -220,7 +220,6 @@ class ChatBot:
             last_message = messages[-1]
             if not last_message.tool_calls:
                 return "ask_human"
-            elif last_message.tool_calls[0]["name"] == "SayGoodbye":
                 return END
             else:
                 return "agent"
