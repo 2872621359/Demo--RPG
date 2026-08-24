@@ -44,6 +44,8 @@ sys.path.insert(0, parentdir)
 
 app = Flask(__name__)
 
+load_dotenv()
+
 # 定义音频文件保存路径（使用绝对路径避免工作目录问题）
 PCM_OUTPUT_PATH = os.path.join(currentdir, "static", "audio", "output.pcm")
 WAV_OUTPUT_PATH = os.path.join(currentdir, "static", "audio", "output.wav")
@@ -359,6 +361,20 @@ def generate_unique_filename(base_path, extension):
     unique_filename = f"{base_path}_{int(time.time())}.{extension}"
     return unique_filename
 
+def create_tts_params(text: str):
+    """从环境变量读取讯飞语音合成凭据，避免在源码中硬编码密钥。"""
+    credentials = {
+        "APPID": os.getenv("XFYUN_APPID"),
+        "APIKey": os.getenv("XFYUN_API_KEY"),
+        "APISecret": os.getenv("XFYUN_API_SECRET"),
+    }
+    missing = [name for name, value in credentials.items() if not value]
+    if missing:
+        raise RuntimeError(
+            f"缺少讯飞 TTS 环境变量: {', '.join(missing)}"
+        )
+    return Ws_Param(Text=text, **credentials)
+
 def my_send_message(chatbot: ChatBot):
     message = request.form.get('message')
     print("收到的消息:", message)
@@ -392,7 +408,7 @@ def my_send_message(chatbot: ChatBot):
                     else:
                         response_text = "恭喜你通过了鉴定，请说说下一步您将去哪里探索"
                 
-                wsParam = Ws_Param(APPID='a3270512', APISecret='YzMxMDBkM2FkNzIwN2QzYjgxZmJjYjcw', APIKey='8ce9f9ead6de3aca608d8c5fcd1cfbe9', Text=response_text)
+                wsParam = create_tts_params(response_text)
                 websocket.enableTrace(False)
                 wsUrl = wsParam.create_url()
                 ws = WebSocketApp(wsUrl, 
@@ -483,7 +499,7 @@ def my_gamestart(chatbot: ChatBot):
 
         os.makedirs(os.path.dirname(PCM_OUTPUT_PATH), exist_ok=True)
 
-        wsParam = Ws_Param(APPID='a3270512', APISecret='YzMxMDBkM2FkNzIwN2QzYjgxZmJjYjcw', APIKey='8ce9f9ead6de3aca608d8c5fcd1cfbe9', Text=response_text)
+        wsParam = create_tts_params(response_text)
         websocket.enableTrace(False)
         wsUrl = wsParam.create_url()
         ws = WebSocketApp(wsUrl,
@@ -570,4 +586,3 @@ def get_messages():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5003))
     app.run(port=port, debug=False, use_reloader=False)
-

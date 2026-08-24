@@ -16,6 +16,7 @@ import _thread as thread
 import os
 import wave
 from pydub import AudioSegment
+from dotenv import load_dotenv
 # import playsound   # 使用 playsound 库播放音频（云端服务器不支持）
 
 STATUS_FIRST_FRAME = 0  # 第一帧的标识
@@ -156,8 +157,17 @@ def pcm2wav(pcm_file, wav_file, channels=1, bits=16, sample_rate=16000):
     wavfile.close()
 
 if __name__ == "__main__":
-    wsParam = Ws_Param(APPID='a3270512', APISecret='YzMxMDBkM2FkNzIwN2QzYjgxZmJjYjcw',
-                     APIKey='8ce9f9ead6de3aca608d8c5fcd1cfbe9',
+    load_dotenv()
+    credentials = {
+        "APPID": os.getenv("XFYUN_APPID"),
+        "APIKey": os.getenv("XFYUN_API_KEY"),
+        "APISecret": os.getenv("XFYUN_API_SECRET"),
+    }
+    missing = [name for name, value in credentials.items() if not value]
+    if missing:
+        raise SystemExit(f"缺少讯飞 TTS 环境变量: {', '.join(missing)}")
+
+    wsParam = Ws_Param(**credentials,
                      Text="随着科技的飞速发展，教育领域也迎来了前所未有的变革。从传统的课堂教学到线上学习平台，再到虚拟现实和人工智能在教育中的应用，我们正处在一个教育模式不断演变的时代。本文将探讨未来教育的一些趋势，以及技术如何与人文相结合，共同塑造一个更加全面和高效的学习环境。")
     websocket.enableTrace(False)
     wsUrl = wsParam.create_url()
